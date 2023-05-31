@@ -1,58 +1,128 @@
- <%= render"layouts/error_messages", model: @item %>
+<%= render"layouts/error_messages", model: @item %>
 <div class="container">
   <div class="col-md-10 mx-auto mt-5">
 
   <div class="row justify-content-center mb-3">
-   <div class="col-md-4 headline">
-    <h4>商品新規登録</h4>
-   </div>
+    <div class="col-md-4 headline">
+      <h4 class="mb-0">商品新規登録</h4>
+    </div>
+  </div>
+  <!-- ジャンル新規登録欄 -->
+  <div class="col-4 mx-auto form-group rounded" id="new-genre-form"
+  style="display: none; position: absolute; top: 29%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.6); padding: 15px; z-index: 9999;">
+    <table class="table table-borderless mb-0">
+      <tr>
+        <td>
+          <%= form_with model: @genre, url: admin_genres_path do |f| %>
+            <div class="d-flex mt-3">
+              <%= f.text_field :name, placeholder: "新規ジャンル名", class: "form-control me-3" %>
+              <%= f.submit "ジャンル作成", class:"btn font-bold", style: "background-color: #E5E5CB; color: #1A120B;" %>
+            </div>
+              <p class="text-white mt-3"> ※作成をやめる場合、以下のジャンルをお選びください</p>
+          <% end %>
+        </td>
+      </tr>
+    </table>
   </div>
 
     <div class="form d-flex justify-content-center" >
     <%= form_with model: @item, url:admin_items_path, method: :post do |f|  %>
+      <table class="table mt-5">
 
-<table class="table mt-5">
- <tbody>
-  <tr>
-   <td>商品画像</td>
-   <td><%= f.file_field :image,accept: "image/*" %></td>
-  </tr>
-  <tr>
-   <td>商品名</td>
-   <td><%= f.text_field :name, autofocus: true, placeholder:"商品名",class:"form-control" %></td>
-  </tr>
-  <tr>
-   <td>商品説明</td>
-   <td> <%= f.text_area :description, placeholder:"ここに説明文を記述します",rows:"5",class:"form-control"%></td>
-  </tr>
-  <tr>
-   <td>ジャンル</td>
-   <td><%= f.collection_select :genre_id,Genre.all, :id, :name,include_blank: "--選択してください--"%></td>
-  </tr>
-  <tr>
-   <td>税抜価格</td>
-   <td><%= f.text_field :price_without_tax, pattern:"^[1-9][0-9]*$", placeholder:"1000(半角数字を入力)",class:"form-control" %></td>
-  </tr>
-  <tr>
-   <td>販売ステータス</td>
-   <td>
-     <%= f.radio_button :is_on_sale, :true,class:"form-check-input" %>
-     <%= f.label :is_on_sale, "販売中",class:"form-check-label" %>
-     <%= f.radio_button :is_on_sale, :false,class:"form-check-input" %>
-     <%= f.label :is_on_sale, "販売停止中",class:"form-check-label" %>
-   </td>
-  </tr>
- </tbody>
-</table>
+        <tr>
+          <td>商品画像</td>
+          <td>
+            <%= f.file_field :image,accept: "image/*" %>
+            <!--プレビュー表示-->
+            <img class="mt-2" id="image-preview" src="#" alt="プレビュー" style="max-width: 150px; border: solid thin lightgray; border-radius: 5px;">
+          </td>
+        </tr>
+        <tr>
+          <td>商品名</td>
+          <td><%= f.text_field :name, autofocus: true, placeholder:"商品名",class:"form-control" %></td>
+        </tr>
+        <tr>
+          <td>商品説明</td>
+          <td> <%= f.text_area :description, placeholder:"ここに説明文を記述します",rows:"5",class:"form-control"%></td>
+        </tr>
+        <tr>
+          <td>ジャンル</td>
+          <td>
+          <%= f.select :genre_id, options_for_select([["新しくジャンルを作成する", "new"]].concat(@genres.map { |genre| [genre.name, genre.id] })),
+            { include_blank: "-- 選択してください --" }, {required: true, class: "form-control", id: "genre-select" } %>
+          </td>
+        </tr>
+        <tr>
+          <td>税抜価格</td>
+          <td><%= f.text_field :price_without_tax, pattern:"^[1-9][0-9]*$", placeholder:"1000(半角数字を入力)",class:"form-control" %></td>
+        </tr>
+        <tr>
+          <td>販売ステータス</td>
+          <td>
+            <%= f.radio_button :is_on_sale, :true,class:"form-check-input" %>
+            <%= f.label :is_on_sale, "販売中",class:"form-check-label" %>
+            <%= f.radio_button :is_on_sale, :false,class:"form-check-input" %>
+            <%= f.label :is_on_sale, "販売停止中",class:"form-check-label" %>
+          </td>
+        </tr>
 
-    <div class="raw text-center mt-3">
-     <%= f.submit "新規登録", class:"btn w-25", style: "background-color: #1A120B; color: #E5E5CB;"%>
+      </table>
+      <div class="raw text-center mt-3">
+        <%= f.submit "新規登録", class:"btn w-25", style: "background-color: #1A120B; color: #E5E5CB;" %>
+      </div>
     </div>
-
-   </div>
-
     <% end %>
-
-
   </div>
 </div>
+
+
+<script>
+  $(document).ready(function() {
+    var genreSelect = $("#genre-select");
+    var newGenreForm = $("#new-genre-form");
+
+    genreSelect.on("change", function() {
+      if (genreSelect.val() === "new") {
+        slideDown(newGenreForm);
+      } else {
+        slideUp(newGenreForm);
+      }
+    });
+
+    function slideDown(element) {
+      element.fadeIn(300);
+    }
+
+    function slideUp(element) {
+      element.fadeOut(300);
+    }
+  });
+</script>
+
+<!--画像ファイルが選択された際に発火し、画像のプレビューを表示-->
+<script>
+  // 初期状態では非表示に
+  $("#image-preview").hide();
+
+  // 画像が選択された際に実行される関数
+  function showPreview(event) {
+    var file = event.target.files[0];
+    var reader = new FileReader();
+
+    // アップロードした画像をセットし、表示する
+    reader.onload = function(e) {
+      var previewElement = $("#image-preview");
+      previewElement.attr("src", e.target.result);
+      previewElement.show(); // 画像を表示する
+    }
+
+    // ファイルをデータURL形式で読み込む
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // 再度別画像が読み込まれた時にプレビューを変更する
+  var fileInput = $("#item_image");
+  fileInput.on("change", showPreview);
+</script>

@@ -5,14 +5,17 @@ class Admin::ItemsController < ApplicationController
 
   def new
     @item = Item.new
+    @genres = Genre.all
+    @genre = Genre.new
   end
   
   def create
     @item = Item.new(item_params)
     if @item.save
-     redirect_to admin_item_path(@item.id),notice: "商品の登録が完了しました"
+      redirect_to admin_item_path(@item.id),notice: "商品の登録が完了しました"
     else
-     render :new
+      @genres = Genre.all
+      render :new
     end
   end
 
@@ -22,6 +25,7 @@ class Admin::ItemsController < ApplicationController
 
   def edit
     @item = Item.find(params[:id])
+    @genres = Genre.all
   end
   
   def update
@@ -29,6 +33,7 @@ class Admin::ItemsController < ApplicationController
     if @item.update(item_params)
       redirect_to admin_item_path(@item.id), notice: "商品情報が更新されました"
     else
+      @genres = Genre.all
       render :edit
     end
   end
